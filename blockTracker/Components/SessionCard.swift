@@ -14,16 +14,17 @@ struct SessionCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             
+            
+            
             HStack {
+                
+                Text("Session du \(session.date.formatted(date: .numeric, time: .omitted))")
+                        
+                Spacer()
+                
                 Image(systemName: "star.circle.fill")
                     .font(.title2)
                     .foregroundStyle(.primary)
-                        
-                Text("score")
-                    .font(.headline)
-                        
-                Spacer()
-                        
                 Text(String(format: "%.2f", session.blocsScore))
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)

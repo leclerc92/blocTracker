@@ -14,11 +14,12 @@ struct MainTabView: View {
         case stats,sessions,badges,new
     }
     
-    @State private var selectedTab: Tab = .stats
+    
+    @State private var appState = AppState()
     
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $appState.selectedTab) {
             
             StatsView().tabItem {
                 Image(systemName: "chart.bar")
@@ -40,6 +41,7 @@ struct MainTabView: View {
                 Text("Nouvelle session")
             }.tag(Tab.new)
         }
+        .environment(appState)
     }
 }
 

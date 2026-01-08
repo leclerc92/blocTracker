@@ -10,12 +10,14 @@ import SwiftData
 
 struct SessionListView: View {
     
+    @Environment(AppState.self) private var appState
     @Query private var sessions: [SessionModel]
     
     var body: some View {
+        
+        @Bindable var appState = appState
+        
         NavigationStack {
-            
-            
             if sessions.isEmpty {
                 EmptyStateView(message: "Aucune session enregistrée..", onButtonTap: {})
             } else {
@@ -33,6 +35,9 @@ struct SessionListView: View {
                     .padding()
                 }
                 .navigationDestination(for: SessionModel.self) { session in
+                    SessionDetailView(session: session)
+                }
+                .navigationDestination(item: $appState.sessionToShow) { session in
                     SessionDetailView(session: session)
                 }
             }

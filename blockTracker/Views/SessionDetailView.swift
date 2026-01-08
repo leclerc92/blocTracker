@@ -11,9 +11,11 @@ import SwiftData
 struct SessionDetailView: View {
     
     @Environment(\.modelContext) private var modelContext
-
+    @Environment(\.dismiss) private var dismiss
+    
     let session:SessionModel
     @State var editionBloc:BlocModel?
+    @State private var showDeleteAlert = false
     
     var body: some View {
         
@@ -35,6 +37,27 @@ struct SessionDetailView: View {
             }
         }
         .navigationTitle("Session du \(session.date.formatted(date: .numeric, time: .omitted))")
+        .toolbar {
+            ToolbarItem {
+                Button(action: {showDeleteAlert = true}) {
+                    Label("supprimer", systemImage: "trash.fill")
+                        .font(.headline)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.red.opacity(0.2))
+                        .foregroundStyle(.red)
+                        .clipShape(Capsule())
+                }
+                .alert("Supprimer la session ?", isPresented: $showDeleteAlert) {
+                    Button("Annuler", role: .cancel) { }
+                    Button("Supprimer", role: .destructive) {
+                        removeSession()
+                    }
+                } message: {
+                    Text("Cette action est irréversible.")
+                }
+            }
+        }
 
     }
     
@@ -51,6 +74,11 @@ struct SessionDetailView: View {
         editionBloc = nil
         session.blocs.removeAll { $0.id == bloc.id }
         modelContext.delete(bloc)
+    }
+    
+    func removeSession() {
+        modelContext.delete(session)
+        dismiss()
     }
 }
 
