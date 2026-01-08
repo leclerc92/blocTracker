@@ -86,12 +86,14 @@ struct SessionDetailView: View {
     
     func validateEditionBloc(bloc:BlocModel) {
         editionBloc = nil
+        try? modelContext.save()
     }
     
     func removeEditionBloc(bloc:BlocModel) {
         editionBloc = nil
         session.blocs.removeAll { $0.id == bloc.id }
         modelContext.delete(bloc)
+        try? modelContext.save()
     }
     
     func removeSession() {

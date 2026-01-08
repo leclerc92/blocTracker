@@ -118,12 +118,17 @@ struct ActiveSessionView: View {
         // Sauvegarde SwiftData
         modelContext.insert(session)
         
-        // Navigation (Mise à jour de l'état global)
+        do {
+            try modelContext.save()  // ← FORCE LA SAUVEGARDE
+        } catch {
+            print("Erreur de sauvegarde: \(error)")
+        }
+        
+        // Navigation
         withAnimation {
             appState.sessionToShow = session
             appState.selectedTab = .sessions
             
-            // Reset local
             activeSession = nil
             validatedBlocIds.removeAll()
         }
