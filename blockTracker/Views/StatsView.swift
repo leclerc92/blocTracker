@@ -113,8 +113,7 @@ struct StatsView: View {
                     .padding(.top)
                 }
             }
-            .navigationTitle("Statistiques")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarHidden(true)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbarBackground(Color.black, for: .navigationBar)
         }
