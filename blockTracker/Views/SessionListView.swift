@@ -18,11 +18,10 @@ struct SessionListView: View {
         
         NavigationStack {
             ZStack {
-                // FOND NOIR GLOBAL (Crucial pour le look Fitness)
                 Color.black.ignoresSafeArea()
                 
                 if sessions.isEmpty {
-                    EmptyStateView(message: "Aucune session enregistrée..", onButtonTap: {})
+                    EmptyStateView(message: "Ajoute ta première session dans l'onglet Grimper !")
                 } else {
                     ScrollView {
                         VStack(spacing: 16) {

@@ -1,15 +1,13 @@
 import SwiftUI
+import SwiftData
 
 struct StatsView: View {
     
-    // Données fictives
-    private let mockTotalSessions = 42
-    private let mockAvgScore = 185.5
-    private let mockAvgLevel = 6.2 // NOUVEAU
-    private let mockMaxGrade = 14
-    private let mockCompletionRate = 78
-    private let mockOverhangRate = 0.65
-    private let mockAvgBlocsPerSession = 12
+    @Query(sort: \SessionModel.date, order: .forward) private var sessions: [SessionModel]
+    
+    private var data: GlobalStatsData {
+            StatsService.computeStats(from: sessions)
+    }
     
     // État pour les graphiques défilants
     @State private var selectedChart = 0
@@ -25,11 +23,11 @@ struct StatsView: View {
                         // 1. CARROUSEL DE GRAPHIQUES (Style Apple Fitness)
                         VStack(spacing: 8) {
                             TabView(selection: $selectedChart) {
-                                ScoreEvolutionChart()
+                                ScoreEvolutionChart(data: data.scoreHistory)
                                     .tag(0)
                                     .padding(.horizontal) // Padding interne pour ne pas coller aux bords
                                 
-                                LevelEvolutionChart() // NOUVEAU COMPOSANT
+                                LevelEvolutionChart(data:data.levelHistory)
                                     .tag(1)
                                     .padding(.horizontal)
                             }
@@ -52,16 +50,15 @@ struct StatsView: View {
                             
                             KPIBox(
                                 title: "Score Moyen",
-                                value: String(format: "%.0f", mockAvgScore),
+                                value: String(format: "%.0f", data.globalAverageScore),
                                 unit: "pts",
                                 icon: "star.fill",
                                 color: .climbingAccent
                             )
                             
-                            // NOUVELLE TUILE : NIVEAU MOYEN
                             KPIBox(
                                 title: "Niveau Moyen",
-                                value: String(format: "%.1f", mockAvgLevel),
+                                value: String(format: "%.1f", data.globalAverageLevel),
                                 unit: "/ 16",
                                 icon: "figure.stairs",
                                 color: .purple // Assorti au graphique de niveau
@@ -69,7 +66,7 @@ struct StatsView: View {
                             
                             KPIBox(
                                 title: "Total Sessions",
-                                value: "\(mockTotalSessions)",
+                                value: "\(data.totalSessions)",
                                 unit: nil,
                                 icon: "calendar",
                                 color: .blue
@@ -77,7 +74,7 @@ struct StatsView: View {
                             
                             KPIBox(
                                 title: "Niveau Max",
-                                value: "\(mockMaxGrade)",
+                                value: "\(data.maxLevelAchieved)",
                                 unit: nil,
                                 icon: "trophy.fill",
                                 color: .yellow
@@ -85,7 +82,6 @@ struct StatsView: View {
                         }
                         .padding(.horizontal)
                         
-                        // 3. RESTE DE LA VUE (Analyses)
                         VStack(spacing: 16) {
                             HStack {
                                 Text("ANALYSE TECHNIQUE")
@@ -95,15 +91,14 @@ struct StatsView: View {
                             }
                             
                             // Style Distribution
-                            StyleDistributionChart(overhangPercentage: mockOverhangRate)
+                            StyleDistributionChart(overhangPercentage: data.overhangRatio)
                             
-                            // Taux de réussite (Simplifié pour l'exemple)
                             HStack {
                                 Label("Blocs validés", systemImage: "checkmark.circle.fill")
                                     .font(.fitness(.subheadline, weight: .bold))
                                     .foregroundStyle(.green)
                                 Spacer()
-                                Text("\(mockCompletionRate)%")
+                                Text(String(format: "%.1f",data.globalSuccessRate))
                                     .font(.fitness(.headline, weight: .bold))
                                     .foregroundStyle(.white)
                             }

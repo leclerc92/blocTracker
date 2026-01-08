@@ -175,7 +175,6 @@ struct LiveSessionHeader: View {
             
             Spacer()
             
-            // Bouton Terminer (Style Capsule)
             Button(action: onFinish) {
                 Text("Terminer")
                     .font(.fitness(.subheadline, weight: .bold))

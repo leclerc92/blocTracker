@@ -10,7 +10,7 @@ import SwiftUI
 struct EmptyStateView: View {
     
     var message: String
-    var onButtonTap: () -> Void
+    var onButtonTap: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 30) {
@@ -51,22 +51,24 @@ struct EmptyStateView: View {
             
             Spacer()
             
-            // 3. Le bouton d'action principal (Style "Start Workout")
-            Button(action: onButtonTap) {
-                HStack {
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .bold))
-                    Text("Nouvelle Session")
-                        .font(.fitness(.headline, weight: .bold))
+            if let onButtonTap {
+                Button(action: onButtonTap) {
+                    HStack {
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .bold))
+                        Text("Nouvelle Session")
+                            .font(.fitness(.headline, weight: .bold))
+                    }
+                    .foregroundStyle(.black) 
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.climbingAccent)
+                    .cornerRadius(16)
                 }
-                .foregroundStyle(.black) // Texte noir sur fond néon = Max lisibilité
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.climbingAccent)
-                .cornerRadius(16)
+                .padding(.horizontal, 40)
+                .padding(.bottom, 40)
             }
-            .padding(.horizontal, 40)
-            .padding(.bottom, 40) // Espace safe area
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.ignoresSafeArea()) // S'assure que le fond est bien noir

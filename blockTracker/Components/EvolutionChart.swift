@@ -10,22 +10,9 @@ import SwiftUI
 import Charts
 
 struct ScoreEvolutionChart: View {
-    // Données fictives pour le graph
-    struct DataPoint: Identifiable {
-        let id = UUID()
-        let day: String
-        let score: Double
-    }
     
-    let data: [DataPoint] = [
-        .init(day: "Lun", score: 120),
-        .init(day: "Mer", score: 145),
-        .init(day: "Ven", score: 138),
-        .init(day: "Dim", score: 160),
-        .init(day: "Mar", score: 175),
-        .init(day: "Jeu", score: 168),
-        .init(day: "Sam", score: 190)
-    ]
+    // On reçoit maintenant les vraies données
+    let data: [ChartDataPoint]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -33,43 +20,59 @@ struct ScoreEvolutionChart: View {
                 .font(.fitness(.caption, weight: .bold))
                 .foregroundStyle(.gray)
             
-            Chart {
-                ForEach(data) { point in
-                    // La ligne fluide
-                    LineMark(
-                        x: .value("Jour", point.day),
-                        y: .value("Score", point.score)
-                    )
-                    .interpolationMethod(.catmullRom) // Courbe lissée
-                    .foregroundStyle(Color.climbingAccent)
-                    .symbol {
-                        Circle()
-                            .fill(Color.climbingAccent)
-                            .frame(width: 8, height: 8)
-                    }
-                    
-                    // Le dégradé sous la courbe
-                    AreaMark(
-                        x: .value("Jour", point.day),
-                        y: .value("Score", point.score)
-                    )
-                    .interpolationMethod(.catmullRom)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color.climbingAccent.opacity(0.3), Color.climbingAccent.opacity(0.0)],
-                            startPoint: .top,
-                            endPoint: .bottom
+            if data.isEmpty {
+                // État vide si pas assez de sessions
+                ContentUnavailableView("Pas assez de données", systemImage: "chart.xyaxis.line")
+                    .frame(height: 180)
+            } else {
+                Chart {
+                    ForEach(data) { point in
+                        // La ligne fluide
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Score", point.value)
                         )
-                    )
+                        .interpolationMethod(.catmullRom)
+                        .foregroundStyle(Color.climbingAccent)
+                        
+                        // Le point avec la valeur affichée
+                        PointMark(
+                            x: .value("Date", point.date),
+                            y: .value("Score", point.value)
+                        )
+                        .foregroundStyle(Color.climbingAccent)
+                        .annotation(position: .top) { // <--- C'est ici qu'on affiche la valeur
+                            Text(String(format: "%.0f", point.value))
+                                .font(.fitness(size: 10, weight: .bold))
+                                .foregroundStyle(Color.gray)
+                                .padding(.bottom, 4)
+                        }
+                        
+                        // Le dégradé sous la courbe
+                        AreaMark(
+                            x: .value("Date", point.date),
+                            y: .value("Score", point.value)
+                        )
+                        .interpolationMethod(.catmullRom)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.climbingAccent.opacity(0.3), Color.climbingAccent.opacity(0.0)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    }
                 }
-            }
-            .chartYAxis(.hidden) // On cache l'axe Y pour le look épuré
-            .chartXAxis {
-                AxisMarks(position: .bottom) { _ in
-                    AxisValueLabel().foregroundStyle(Color.gray)
+                .chartYAxis(.hidden)
+                // Formatage de l'axe X pour afficher "Lun 12", "Jeu 14"...
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                        AxisValueLabel(format: .dateTime.day().month(.defaultDigits))
+                            .foregroundStyle(Color.gray)
+                    }
                 }
+                .frame(height: 180)
             }
-            .frame(height: 180)
         }
         .padding(20)
         .background(Color.cardBackground)
@@ -130,21 +133,8 @@ struct StyleDistributionChart: View {
 }
 
 struct LevelEvolutionChart: View {
-    struct LevelDataPoint: Identifiable {
-        let id = UUID()
-        let date: String
-        let level: Double
-    }
     
-    // Données fictives : Le niveau grimpe doucement
-    let data: [LevelDataPoint] = [
-        .init(date: "S1", level: 5.2),
-        .init(date: "S2", level: 5.4),
-        .init(date: "S3", level: 5.3),
-        .init(date: "S4", level: 5.8),
-        .init(date: "S5", level: 6.0),
-        .init(date: "S6", level: 6.2)
-    ]
+    let data: [ChartDataPoint]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -153,57 +143,60 @@ struct LevelEvolutionChart: View {
                     .font(.fitness(.caption, weight: .bold))
                     .foregroundStyle(.gray)
                 Spacer()
-                // Petit indicateur de la tendance actuelle
-                Text("+1.0")
-                    .font(.fitness(.caption, weight: .bold))
-                    .foregroundStyle(.purple)
-                    .padding(4)
-                    .background(Color.purple.opacity(0.1))
-                    .cornerRadius(4)
+                
+                // Petit calcul de tendance (Dernier - Premier)
+                if let first = data.first?.value, let last = data.last?.value {
+                    let diff = last - first
+                    Text(diff >= 0 ? String(format: "+%.1f", diff) : String(format: "%.1f", diff))
+                        .font(.fitness(.caption, weight: .bold))
+                        .foregroundStyle(Color.purple)
+                        .padding(4)
+                        .background(Color.purple.opacity(0.1))
+                        .cornerRadius(4)
+                }
             }
             
-            Chart {
-                ForEach(data) { point in
-                    LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Niveau", point.level)
-                    )
-                    .interpolationMethod(.monotone) // Courbe plus douce
-                    .foregroundStyle(Color.purple) // Distinction visuelle (Violet pour la difficulté)
-                    .symbol {
-                        Circle()
-                            .fill(Color.purple)
-                            .frame(width: 8, height: 8)
-                            .overlay(
-                                Circle().stroke(Color.black, lineWidth: 2)
-                            )
+            if data.isEmpty {
+                ContentUnavailableView("Données insuffisantes", systemImage: "chart.line.uptrend.xyaxis")
+                    .frame(height: 180)
+            } else {
+                Chart {
+                    ForEach(data) { point in
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Niveau", point.value)
+                        )
+                        .interpolationMethod(.monotone)
+                        .foregroundStyle(Color.purple)
+                        .symbol {
+                            Circle()
+                                .fill(Color.purple)
+                                .frame(width: 8, height: 8)
+                                .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                        }
+                    }
+                    
+                    // Règle optionnelle (Exemple d'objectif)
+                    RuleMark(y: .value("Objectif", 10.0))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                        .foregroundStyle(Color.gray.opacity(0.3))
+                }
+                // Échelle Y dynamique (Niveau 1 à 16 par exemple)
+                .chartYScale(domain: .automatic(includesZero: false))
+                .chartYAxis {
+                    AxisMarks(position: .leading) { _ in
+                        AxisGridLine().foregroundStyle(Color.gray.opacity(0.1))
+                        AxisValueLabel().foregroundStyle(Color.gray)
                     }
                 }
-                
-                // Règle pour montrer l'objectif (optionnel mais sympa)
-                RuleMark(y: .value("Objectif", 7.0))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                    .foregroundStyle(Color.gray.opacity(0.5))
-                    .annotation(position: .top, alignment: .leading) {
-                        Text("Obj. 7.0")
-                            .font(.caption2)
-                            .foregroundStyle(.gray)
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                        AxisValueLabel(format: .dateTime.day().month(.defaultDigits))
+                            .foregroundStyle(Color.gray)
                     }
-            }
-            // On affiche l'échelle Y pour le niveau car c'est une donnée précise (5, 6, 7...)
-            .chartYScale(domain: 4...8)
-            .chartYAxis {
-                AxisMarks(position: .leading) { _ in
-                    AxisGridLine().foregroundStyle(Color.gray.opacity(0.1))
-                    AxisValueLabel().foregroundStyle(Color.gray)
                 }
+                .frame(height: 180)
             }
-            .chartXAxis {
-                AxisMarks(position: .bottom) { _ in
-                    AxisValueLabel().foregroundStyle(Color.gray)
-                }
-            }
-            .frame(height: 180)
         }
         .padding(20)
         .background(Color.cardBackground)
