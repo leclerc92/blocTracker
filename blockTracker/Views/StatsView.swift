@@ -4,11 +4,14 @@ import SwiftData
 struct StatsView: View {
     
     @Query(sort: \SessionModel.date, order: .forward) private var sessions: [SessionModel]
-    
+
+    // Cache des stats pour éviter de recalculer à chaque render
+    @State private var cachedStats: GlobalStatsData = GlobalStatsData()
+
     private var data: GlobalStatsData {
-            StatsService.computeStats(from: sessions)
+        cachedStats
     }
-    
+
     // État pour les graphiques défilants
     @State private var selectedChart = 0
     
@@ -117,6 +120,14 @@ struct StatsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbarBackground(Color.black, for: .navigationBar)
+        }
+        .onAppear {
+            // Calcul initial des stats
+            cachedStats = StatsService.computeStats(from: sessions)
+        }
+        .onChange(of: sessions) {
+            // Recalcul uniquement quand les sessions changent
+            cachedStats = StatsService.computeStats(from: sessions)
         }
     }
 }

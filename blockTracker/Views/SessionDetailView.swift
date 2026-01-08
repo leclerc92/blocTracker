@@ -15,7 +15,9 @@ struct SessionDetailView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
+    @Query(sort: \SessionModel.date) private var allSessions: [SessionModel]
+
     let session: SessionModel
     
     @State var editionBloc: BlocModel?
@@ -71,7 +73,7 @@ struct SessionDetailView: View {
             }
         }
         // Configuration de la barre de navigation
-        .navigationTitle(session.date.formatted(.dateTime.day().month().year().locale(Locale(identifier: "fr_FR"))))
+        .navigationTitle(session.date.formatted(Date.French.shortDate))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar) // Force le texte blanc en haut
         .toolbarBackground(Color.black, for: .navigationBar)
@@ -115,15 +117,9 @@ struct SessionDetailView: View {
     }
 
     func checkForNewBadges() {
-        // Récupérer toutes les sessions pour calculer les stats globales
-        let descriptor = FetchDescriptor<SessionModel>(sortBy: [SortDescriptor(\.date)])
-        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
-
-        // Calculer les stats et vérifier les badges
+        // Calculer les stats et vérifier les badges (allSessions fourni par @Query)
         let stats = StatsService.computeStats(from: allSessions)
-        let badgeService = BadgeService(modelContext: modelContext)
-
-        let newBadges = badgeService.checkAndUnlockBadges(stats: stats)
+        let newBadges = BadgeService(modelContext: modelContext).checkAndUnlockBadges(stats: stats)
 
         if !newBadges.isEmpty {
             self.newlyEarnedBadges = newBadges
@@ -137,15 +133,9 @@ struct SessionDetailView: View {
         modelContext.delete(session)
         try? modelContext.save()
 
-        // Recalculer les badges après suppression de la session
-        // Note: Cela vérifie s'il y a de nouveaux badges à débloquer
-        // Les badges déjà débloqués restent débloqués même si les conditions ne sont plus remplies
-        let descriptor = FetchDescriptor<SessionModel>(sortBy: [SortDescriptor(\.date)])
-        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
-
+        // Recalculer les badges après suppression de la session (allSessions fourni par @Query)
         let stats = StatsService.computeStats(from: allSessions)
-        let badgeService = BadgeService(modelContext: modelContext)
-        _ = badgeService.checkAndUnlockBadges(stats: stats)
+        _ = BadgeService(modelContext: modelContext).checkAndUnlockBadges(stats: stats)
 
         dismiss()
     }

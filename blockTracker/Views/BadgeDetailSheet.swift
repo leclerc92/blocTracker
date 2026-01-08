@@ -114,7 +114,7 @@ struct BadgeDetailSheet: View {
                                 .font(.fitness(.caption2))
                                 .foregroundStyle(.white.opacity(0.6))
 
-                            Text(date, format: .dateTime.day().month(.wide).year().locale(Locale(identifier: "fr_FR")))
+                            Text(date.formatted(Date.French.longDate))
                                 .font(.fitness(.subheadline, weight: .semibold))
                                 .foregroundStyle(.white)
                         }

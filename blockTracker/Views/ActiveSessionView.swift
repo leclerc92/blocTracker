@@ -12,10 +12,12 @@ struct ActiveSessionView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(AppState.self) private var appState
-    
+
+    @Query(sort: \SessionModel.date) private var allSessions: [SessionModel]
+
     @State private var activeSession: SessionModel?
     @State private var validatedBlocIds: Set<PersistentIdentifier> = []
-    
+
     @State private var newlyEarnedBadges: [Badge] = []
     @State private var showBadgeAlert = false
     
@@ -135,17 +137,9 @@ struct ActiveSessionView: View {
             print("Erreur de sauvegarde: \(error)")
         }
         
-        // 2. Récupération des données fraîches pour le calcul
-        // On doit fetcher TOUTES les sessions pour avoir les stats globales à jour
-        let descriptor = FetchDescriptor<SessionModel>(sortBy: [SortDescriptor(\.date)])
-        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
-        
-        // 3. Calcul des Stats et Badges
-        let stats = StatsService.computeStats(from: allSessions) //
-        let badgeService = BadgeService(modelContext: modelContext) //
-        
-        // On récupère les badges gagnés à l'instant
-        let newBadges = badgeService.checkAndUnlockBadges(stats: stats)
+        // 2. Calcul des Stats et Badges (allSessions fourni par @Query)
+        let stats = StatsService.computeStats(from: allSessions)
+        let newBadges = BadgeService(modelContext: modelContext).checkAndUnlockBadges(stats: stats)
         
         // 4. Décision : Alerte ou Sortie directe ?
         if !newBadges.isEmpty {
@@ -213,7 +207,7 @@ struct LiveSessionHeader: View {
                         .font(.fitness(size: 10, weight: .bold))
                         .foregroundStyle(.red)
                     
-                    Text(date, format: .dateTime.hour().minute().locale(Locale(identifier: "fr_FR")))
+                    Text(date.formatted(Date.French.timeOnly))
                         .font(.fitness(.title3, weight: .bold))
                         .foregroundStyle(.white)
                 }
