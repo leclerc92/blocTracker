@@ -74,7 +74,7 @@ struct StatsView: View {
                             
                             KPIBox(
                                 title: "Niveau Max",
-                                value: "\(data.maxLevelAchieved)",
+                                value: "\(data.maxLevelCompleted)",
                                 unit: nil,
                                 icon: "trophy.fill",
                                 color: .yellow
@@ -113,7 +113,8 @@ struct StatsView: View {
                     .padding(.top)
                 }
             }
-            .navigationBarHidden(true)
+            .navigationTitle("Statistiques")
+            .navigationBarTitleDisplayMode(.large)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbarBackground(Color.black, for: .navigationBar)
         }

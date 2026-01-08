@@ -11,7 +11,7 @@ import SwiftData
 @MainActor
 let previewContainer: ModelContainer = {
     let container = try! ModelContainer(
-        for: SessionModel.self, BlocModel.self,
+        for: SessionModel.self, BlocModel.self, UnlockedBadgeModel.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
 

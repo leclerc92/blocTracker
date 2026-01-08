@@ -15,6 +15,6 @@ struct blockTrackerApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [SessionModel.self, BlocModel.self])
+        .modelContainer(for: [SessionModel.self, BlocModel.self, UnlockedBadgeModel.self])
     }
 }

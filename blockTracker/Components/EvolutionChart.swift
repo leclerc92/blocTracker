@@ -67,7 +67,7 @@ struct ScoreEvolutionChart: View {
                 // Formatage de l'axe X pour afficher "Lun 12", "Jeu 14"...
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                        AxisValueLabel(format: .dateTime.day().month(.defaultDigits))
+                        AxisValueLabel(format: .dateTime.day().month(.defaultDigits).locale(Locale(identifier: "fr_FR")))
                             .foregroundStyle(Color.gray)
                     }
                 }
@@ -191,7 +191,7 @@ struct LevelEvolutionChart: View {
                 }
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                        AxisValueLabel(format: .dateTime.day().month(.defaultDigits))
+                        AxisValueLabel(format: .dateTime.day().month(.defaultDigits).locale(Locale(identifier: "fr_FR")))
                             .foregroundStyle(Color.gray)
                     }
                 }

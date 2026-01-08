@@ -41,11 +41,11 @@ private struct HeaderView: View {
     var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(date.formatted(.dateTime.weekday(.wide)).uppercased())
+                Text(date.formatted(.dateTime.weekday(.wide).locale(Locale(identifier: "fr_FR"))))
                     .font(.fitness(.caption, weight: .bold))
                     .foregroundStyle(Color.climbingAccent) // Touche de couleur
-                
-                Text(date.formatted(date: .long, time: .omitted))
+
+                Text(date, format: .dateTime.day().month(.wide).year().locale(Locale(identifier: "fr_FR")))
                     .font(.fitness(.title3, weight: .semibold))
                     .foregroundStyle(.white)
             }

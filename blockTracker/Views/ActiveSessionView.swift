@@ -14,8 +14,10 @@ struct ActiveSessionView: View {
     @Environment(AppState.self) private var appState
     
     @State private var activeSession: SessionModel?
-    // On utilise UUID pour tracker les blocs localement avant la sauvegarde SwiftData
     @State private var validatedBlocIds: Set<PersistentIdentifier> = []
+    
+    @State private var newlyEarnedBadges: [Badge] = []
+    @State private var showBadgeAlert = false
     
     var body: some View {
         ZStack {
@@ -86,6 +88,17 @@ struct ActiveSessionView: View {
                     }
                 }
             }
+
+            // Popup de badges en overlay complet (en dehors du ScrollView)
+            if showBadgeAlert {
+                NewBadgePopup(badges: newlyEarnedBadges, onDismiss: {
+                    // Quand l'utilisateur ferme le popup, on navigue enfin
+                    if let session = activeSession {
+                        closeAndNavigate(session: session)
+                    }
+                })
+                .zIndex(100) // S'assure qu'il est tout au dessus
+            }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: activeSession?.blocs.count)
         .animation(.easeInOut, value: validatedBlocIds)
@@ -94,10 +107,8 @@ struct ActiveSessionView: View {
     // MARK: - Actions
     
     func startNewSession() {
-        // Animation de transition
         withAnimation {
             activeSession = SessionModel(date: Date())
-            // On ajoute directement un premier bloc pour ne pas avoir une page vide
             addBloc()
         }
     }
@@ -115,22 +126,52 @@ struct ActiveSessionView: View {
     func saveSession() {
         guard let session = activeSession else { return }
         
-        // Sauvegarde SwiftData
+        // 1. Sauvegarde SwiftData
         modelContext.insert(session)
         
         do {
-            try modelContext.save()  // ← FORCE LA SAUVEGARDE
+            try modelContext.save()
         } catch {
             print("Erreur de sauvegarde: \(error)")
         }
         
-        // Navigation
+        // 2. Récupération des données fraîches pour le calcul
+        // On doit fetcher TOUTES les sessions pour avoir les stats globales à jour
+        let descriptor = FetchDescriptor<SessionModel>(sortBy: [SortDescriptor(\.date)])
+        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
+        
+        // 3. Calcul des Stats et Badges
+        let stats = StatsService.computeStats(from: allSessions) //
+        let badgeService = BadgeService(modelContext: modelContext) //
+        
+        // On récupère les badges gagnés à l'instant
+        let newBadges = badgeService.checkAndUnlockBadges(stats: stats)
+        
+        // 4. Décision : Alerte ou Sortie directe ?
+        if !newBadges.isEmpty {
+            // CAS A : On a gagné un truc -> On montre l'alerte
+            self.newlyEarnedBadges = newBadges
+            withAnimation(.spring()) {
+                self.showBadgeAlert = true
+            }
+        } else {
+            // CAS B : Rien de neuf -> On sort direct
+            closeAndNavigate(session: session)
+        }
+    }
+
+    // Une petite fonction helper pour ne pas dupliquer le code de navigation
+    func closeAndNavigate(session: SessionModel) {
         withAnimation {
             appState.sessionToShow = session
             appState.selectedTab = .sessions
             
             activeSession = nil
             validatedBlocIds.removeAll()
+            
+            // Reset des états d'alerte
+            showBadgeAlert = false
+            newlyEarnedBadges = []
         }
     }
     
@@ -172,7 +213,7 @@ struct LiveSessionHeader: View {
                         .font(.fitness(size: 10, weight: .bold))
                         .foregroundStyle(.red)
                     
-                    Text(date.formatted(date: .omitted, time: .shortened))
+                    Text(date, format: .dateTime.hour().minute().locale(Locale(identifier: "fr_FR")))
                         .font(.fitness(.title3, weight: .bold))
                         .foregroundStyle(.white)
                 }

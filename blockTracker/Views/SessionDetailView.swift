@@ -20,6 +20,9 @@ struct SessionDetailView: View {
     
     @State var editionBloc: BlocModel?
     @State private var showDeleteAlert = false
+
+    @State private var newlyEarnedBadges: [Badge] = []
+    @State private var showBadgeAlert = false
     
     var body: some View {
         ZStack {
@@ -57,9 +60,18 @@ struct SessionDetailView: View {
                 }
                 .padding(.vertical)
             }
+
+            // Popup de badges en overlay complet
+            if showBadgeAlert {
+                NewBadgePopup(badges: newlyEarnedBadges, onDismiss: {
+                    showBadgeAlert = false
+                    newlyEarnedBadges = []
+                })
+                .zIndex(100)
+            }
         }
         // Configuration de la barre de navigation
-        .navigationTitle(session.date.formatted(date: .numeric, time: .omitted))
+        .navigationTitle(session.date.formatted(.dateTime.day().month().year().locale(Locale(identifier: "fr_FR"))))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar) // Force le texte blanc en haut
         .toolbarBackground(Color.black, for: .navigationBar)
@@ -87,6 +99,9 @@ struct SessionDetailView: View {
     func validateEditionBloc(bloc:BlocModel) {
         editionBloc = nil
         try? modelContext.save()
+
+        // Vérifier les nouveaux badges après modification
+        checkForNewBadges()
     }
     
     func removeEditionBloc(bloc:BlocModel) {
@@ -94,10 +109,44 @@ struct SessionDetailView: View {
         session.blocs.removeAll { $0.id == bloc.id }
         modelContext.delete(bloc)
         try? modelContext.save()
+
+        // Vérifier les nouveaux badges après suppression
+        checkForNewBadges()
     }
-    
+
+    func checkForNewBadges() {
+        // Récupérer toutes les sessions pour calculer les stats globales
+        let descriptor = FetchDescriptor<SessionModel>(sortBy: [SortDescriptor(\.date)])
+        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
+
+        // Calculer les stats et vérifier les badges
+        let stats = StatsService.computeStats(from: allSessions)
+        let badgeService = BadgeService(modelContext: modelContext)
+
+        let newBadges = badgeService.checkAndUnlockBadges(stats: stats)
+
+        if !newBadges.isEmpty {
+            self.newlyEarnedBadges = newBadges
+            withAnimation(.spring()) {
+                self.showBadgeAlert = true
+            }
+        }
+    }
+
     func removeSession() {
         modelContext.delete(session)
+        try? modelContext.save()
+
+        // Recalculer les badges après suppression de la session
+        // Note: Cela vérifie s'il y a de nouveaux badges à débloquer
+        // Les badges déjà débloqués restent débloqués même si les conditions ne sont plus remplies
+        let descriptor = FetchDescriptor<SessionModel>(sortBy: [SortDescriptor(\.date)])
+        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
+
+        let stats = StatsService.computeStats(from: allSessions)
+        let badgeService = BadgeService(modelContext: modelContext)
+        _ = badgeService.checkAndUnlockBadges(stats: stats)
+
         dismiss()
     }
 }

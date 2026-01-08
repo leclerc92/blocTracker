@@ -71,7 +71,7 @@ struct MainTabView: View {
                 .tag(Tab.new)
             
             // Onglet 4 : Badges
-            BadgesView() // Assure-toi que cette vue existe ou crée une vue vide
+            BadgesListView() // Assure-toi que cette vue existe ou crée une vue vide
                 .tabItem {
                     Label("Trophées", systemImage: "trophy.fill")
                 }
