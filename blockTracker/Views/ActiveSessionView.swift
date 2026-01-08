@@ -13,7 +13,8 @@ struct ActiveSessionView: View {
     
     @Environment(\.modelContext) private var modelContext
     @State private var activeSession: SessionModel?
-    
+    @State private var editingBloc:BlocModel? = nil
+    @State private var validateBlocIds:Set<PersistentIdentifier> = []
     
     var body: some View {
         
@@ -51,7 +52,12 @@ struct ActiveSessionView: View {
                     ScrollView {
                         if let blocs = activeSession?.blocs {
                             ForEach(blocs) { bloc in
-                                BlocEditableCard(bloc: bloc)
+                                
+                                if validateBlocIds.contains(bloc.id) {
+                                    BlocCard(bloc: bloc, editButton: {setEditableBlock(blocId: bloc.id)})
+                                } else {
+                                    BlocEditableCard(bloc: bloc,onDelete: {deleteBloc(bloc:bloc)}, onValidate: {validateBloc(bloc:bloc)})
+                                }
                             }
                         }
                     }
@@ -76,7 +82,7 @@ struct ActiveSessionView: View {
             print("activeSession is nil")
             return
         }
-        session.blocs.append(BlocModel(session: session))
+        session.blocs.insert(BlocModel(session:session),at:0)
     }
     
     func saveSession() {
@@ -86,10 +92,26 @@ struct ActiveSessionView: View {
             return
         }
         
- 
         modelContext.insert(session)
         activeSession = nil
+        validateBlocIds.removeAll()
         
+    }
+    
+    func setEditableBlock(blocId:PersistentIdentifier) {
+        validateBlocIds.remove(blocId)
+    }
+    
+    func validateBloc(bloc:BlocModel) {
+        validateBlocIds.insert(bloc.id)
+    }
+    
+    func deleteBloc(bloc:BlocModel) {
+        guard let activeSession else {
+            print("activeSession is nil")
+            return
+        }
+        activeSession.blocs.removeAll { $0.id == bloc.id }
     }
 }
 
