@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
     
@@ -15,25 +16,26 @@ struct MainTabView: View {
     
     @State private var selectedTab: Tab = .stats
     
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             
-            Text("Statistiques").tabItem {
+            StatsView().tabItem {
                 Image(systemName: "chart.bar")
                 Text("Statistiques")
             }.tag(Tab.stats)
             
-            Text("Sessions").tabItem {
+            SessionListView().tabItem {
                 Image(systemName: "list.bullet")
                 Text("Sessions")
             }.tag(Tab.sessions)
             
-            Text("Badges").tabItem {
+            BadgesView().tabItem {
                 Image(systemName: "trophy")
                 Text("Badges")
             }.tag(Tab.badges)
             
-            Text("Session en cours").tabItem {
+            ActiveSessionView().tabItem {
                 Image(systemName: "plus.circle")
                 Text("Nouvelle session")
             }.tag(Tab.new)
@@ -43,4 +45,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .modelContainer(previewContainer)
 }

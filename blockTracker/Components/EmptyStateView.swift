@@ -8,11 +8,29 @@
 import SwiftUI
 
 struct EmptyStateView: View {
+    
+    var message:String
+    var onButtonTap: () -> Void
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            Text(message)
+                .font(.largeTitle)
+                .foregroundColor(.secondary)
+                .padding()
+            
+            Button(action: onButtonTap ) {
+                   Label("Ajouter une session", systemImage: "plus.circle")
+                    .padding(20)
+            }
+            .buttonStyle(.glass)
+            
+            
+        }
     }
 }
 
+
 #Preview {
-    EmptyStateView()
+    EmptyStateView(message: "Ajouter une nouvelle session ! ", onButtonTap: {print("bouton cliqué")})
 }

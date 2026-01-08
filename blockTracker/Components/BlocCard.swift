@@ -10,9 +10,19 @@ import SwiftUI
 struct BlocCard: View {
     
     let bloc:BlocModel
+    var editButton: (()->Void)?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            
+            HStack {
+                Spacer()
+                if let editButton = editButton {
+                    Button(action: editButton) {
+                        Image(systemName: "square.and.pencil")
+                    }
+                }
+            }
             
             HStack {
                 Image(systemName: "star.circle.fill")
@@ -66,7 +76,16 @@ struct BlocCard: View {
                             .padding(.vertical, 5)
                             .background(Color.green.opacity(0.15))
                             .clipShape(Capsule())
+                    } else {
+                        Text("Non terminé")
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.red)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color.red.opacity(0.15))
+                            .clipShape(Capsule())
                     }
+                    Spacer()
 
                 }
                 
@@ -87,7 +106,7 @@ struct BlocCard: View {
     VStack {
         
         let bloc1:BlocModel = BlocModel(session:SessionModel(date:Date()))
-        BlocCard(bloc: bloc1)
+        BlocCard(bloc: bloc1,editButton: {})
         
         let bloc2:BlocModel = BlocModel(completed: true, overhang:true, session:SessionModel(date:Date()))
         BlocCard(bloc: bloc2)

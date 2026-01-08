@@ -27,6 +27,6 @@ struct blockTrackerApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(for: [SessionModel.self,BlocModel.self], inMemory: true)
     }
 }
