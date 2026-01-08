@@ -8,67 +8,81 @@
 import SwiftUI
 
 struct SessionCard: View {
-    
     var session: SessionModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 20) {
             
+            // 1. En-tête : Date et Score principal
+            HeaderView(date: session.date, score: session.blocsScore)
             
-            
-            HStack {
-                
-                Text("Session du \(session.date.formatted(date: .numeric, time: .omitted))")
-                        
-                Spacer()
-                
-                Image(systemName: "star.circle.fill")
-                    .font(.title2)
-                    .foregroundStyle(.primary)
-                Text(String(format: "%.2f", session.blocsScore))
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-            }
-            Divider()
-            
-            VStack(alignment: .center, spacing: 10) {
-                
-                HStack {
-                    Text("Niveau moyen : ")
-                    Spacer()
-                    Text(String(format: "%.1f", session.averageBlocLevel))
-                }
-                
-                
-                HStack {
-                    Text("Niveau min - max : ")
-                    Spacer()
-                    Text("\(session.minBlocLevel)")
-                    Text("-")
-                    Text("\(session.maxBlocLevel)")
-                    
-                }
-                
-                
-                HStack {
-                    Text("blocs terminés : ")
-                    Spacer()
-                    Text("\(session.completedBlocCount)")
-                    Text("/")
-                    Text("\(session.blocs.count)")
-                    
-                }
-                
-                
+            // 2. Ligne de stats (Grille horizontale)
+            HStack(spacing: 0) {
+                StatItem(label: "NIV. MOYEN", value: String(format: "%.1f", session.averageBlocLevel))
+                Divider().frame(height: 30).background(Color.white.opacity(0.1)) // Séparateur subtil
+                StatItem(label: "MIN - MAX", value: "\(session.minBlocLevel) - \(session.maxBlocLevel)")
+                Divider().frame(height: 30).background(Color.white.opacity(0.1))
+                StatItem(label: "RÉUSSIS", value: "\(session.completedBlocCount)/\(session.blocs.count)")
             }
         }
         .padding(20)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-            )
-            .padding(.horizontal)
+        .background(Color.cardBackground) // Le fameux gris foncé
+        .cornerRadius(20) // Arrondi plus prononcé style iOS moderne
+    }
+}
+
+// --- SOUS-COMPOSANTS (Pour garder le code propre) ---
+
+// Le Header avec le Score mis en avant
+private struct HeaderView: View {
+    var date: Date
+    var score: Double
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(date.formatted(.dateTime.weekday(.wide)).uppercased())
+                    .font(.fitness(.caption, weight: .bold))
+                    .foregroundStyle(Color.climbingAccent) // Touche de couleur
+                
+                Text(date.formatted(date: .long, time: .omitted))
+                    .font(.fitness(.title3, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+            
+            Spacer()
+            
+            // Score style "Ring" ou "Badge"
+            HStack(spacing: 4) {
+                Text(String(format: "%.1f", score))
+                    // CORRECTION ICI : On appelle directement size: 32
+                    .font(.fitness(size: 32, weight: .black))
+                    .foregroundStyle(Color.climbingAccent)
+                
+                Image(systemName: "star.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.climbingAccent)
+            }
+        }
+    }
+}
+
+// Un item de statistique unique
+private struct StatItem: View {
+    var label: String
+    var value: String
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.fitness(.title3, weight: .semibold)) // Valeur bien visible
+                .foregroundStyle(.white)
+            
+            Text(label)
+                .font(.fitness(.caption2, weight: .medium)) // Label discret
+                .foregroundStyle(Color.textSecondary)
+        }
+        .frame(maxWidth: .infinity) // Pour distribuer l'espace équitablement
     }
 }
 

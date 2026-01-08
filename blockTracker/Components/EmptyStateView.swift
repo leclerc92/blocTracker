@@ -9,28 +9,73 @@ import SwiftUI
 
 struct EmptyStateView: View {
     
-    var message:String
+    var message: String
     var onButtonTap: () -> Void
     
     var body: some View {
-        VStack {
-            Text(message)
-                .font(.largeTitle)
-                .foregroundColor(.secondary)
-                .padding()
+        VStack(spacing: 30) {
             
-            Button(action: onButtonTap ) {
-                   Label("Ajouter une session", systemImage: "plus.circle")
-                    .padding(20)
+            Spacer()
+            
+            // 1. L'illustration centrale (Icone avec effet de halo)
+            ZStack {
+                // Le halo lumineux
+                Circle()
+                    .fill(Color.climbingAccent.opacity(0.1))
+                    .frame(width: 140, height: 140)
+                    .blur(radius: 20)
+                
+                // Cercles concentriques décoratifs
+                Circle()
+                    .stroke(Color.climbingAccent.opacity(0.3), lineWidth: 1)
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: "figure.climbing")
+                    .font(.system(size: 50))
+                    .foregroundStyle(Color.climbingAccent)
             }
-            .buttonStyle(.glass)
+            .padding(.bottom, 10)
             
+            // 2. Les textes
+            VStack(spacing: 8) {
+                Text("C'est calme ici...")
+                    .font(.fitness(.title2, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                Text(message)
+                    .font(.fitness(.body))
+                    .foregroundStyle(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
             
+            Spacer()
+            
+            // 3. Le bouton d'action principal (Style "Start Workout")
+            Button(action: onButtonTap) {
+                HStack {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .bold))
+                    Text("Nouvelle Session")
+                        .font(.fitness(.headline, weight: .bold))
+                }
+                .foregroundStyle(.black) // Texte noir sur fond néon = Max lisibilité
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.climbingAccent)
+                .cornerRadius(16)
+            }
+            .padding(.horizontal, 40)
+            .padding(.bottom, 40) // Espace safe area
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.ignoresSafeArea()) // S'assure que le fond est bien noir
     }
 }
 
-
 #Preview {
-    EmptyStateView(message: "Ajouter une nouvelle session ! ", onButtonTap: {print("bouton cliqué")})
+    EmptyStateView(
+        message: "Enregistre ta première session de grimpe pour suivre ta progression.",
+        onButtonTap: { print("Action") }
+    )
 }

@@ -9,123 +9,149 @@ import SwiftUI
 
 struct BlocEditableCard: View {
     
-    @Bindable var bloc:BlocModel
+    @Bindable var bloc: BlocModel
     var onDelete: (() -> Void)?
     var onValidate: (() -> Void)?
     
-    private var level:Binding<Double>{
+    // Binding pour le slider (Int <-> Double)
+    private var levelBinding: Binding<Double> {
         Binding(
-            get: { Double(self.bloc.level)},
-            set: { newValue in
-                bloc.level = Int(newValue)
-            }
+            get: { Double(bloc.level) },
+            set: { bloc.level = Int($0) }
         )
     }
     
     var body: some View {
-    
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(spacing: 20) {
             
+            // 1. En-tête : Titre et bouton Supprimer
             HStack {
-                        Image(systemName: "figure.climbing")
-                            .font(.title2)
-                            .foregroundStyle(.primary)
-                        
-                        Text("Niveau")
-                            .font(.headline)
-                        
-                        Spacer()
-                        
-                        Text("\(bloc.level)")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
+                Text("MODIFICATION")
+                    .font(.fitness(.caption, weight: .bold))
+                    .foregroundStyle(.gray)
+                Spacer()
+                if let onDelete {
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.red)
+                            .padding(8)
+                            .background(Color.red.opacity(0.15))
+                            .clipShape(Circle())
                     }
-            Slider(value: level, in: 1...16, step: 1)
-                .tint(.primary)
-            
-            Divider()
-            
-            
-            Stepper(value: $bloc.attempts, in: 1...10){
-                HStack{
-                    Label("Nombre d'essais", systemImage: "arrow.clockwise")
-                    Spacer()
-                    Text("\(bloc.attempts)")
-                    Spacer()
                 }
             }
             
-            
-            Divider()
-            
-            HStack(spacing:10) {
-                
-                Toggle(isOn: $bloc.completed) {
-                    Label("Terminé", systemImage: "checkmark")
+            // 2. Le Slider de Niveau (Gros focus)
+            VStack(spacing: 10) {
+                HStack {
+                    Text("NIVEAU")
+                        .font(.fitness(.subheadline, weight: .bold))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Text("\(bloc.level)")
+                        .font(.fitness(size: 32, weight: .black))
+                        .foregroundStyle(Color.climbingAccent)
                 }
                 
-                Toggle(isOn: $bloc.overhang) {
-                    Label("Devers", systemImage: "line.diagonal.trianglehead.up.right")
-                }
+                Slider(value: levelBinding, in: 1...16, step: 1)
+                    .tint(Color.climbingAccent)
             }
             
-            Divider()
+            Divider().background(Color.white.opacity(0.1))
             
+            // 3. Stepper Essais (Custom Design)
             HStack {
-                
-                if let onValidate = onValidate {
-                    Button(action: onValidate) {
-                        Label("valider", systemImage: "checkmark")
-                            .font(.headline)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.green.opacity(0.2))
-                            .foregroundStyle(.green)
-                            .clipShape(Capsule())
-                    }
-                }
+                Label("Essais", systemImage: "arrow.clockwise")
+                    .font(.fitness(.body))
+                    .foregroundStyle(.white)
                 
                 Spacer()
                 
-                if let onDelete = onDelete {
-                    Button(action: onDelete) {
-                        Label("supprimer", systemImage: "trash.fill")
-                            .font(.headline)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.red.opacity(0.2))
-                            .foregroundStyle(.red)
-                            .clipShape(Capsule())
-                    }
+                HStack(spacing: 0) {
+                    Button("-") { if bloc.attempts > 1 { bloc.attempts -= 1 } }
+                        .frame(width: 40, height: 32)
+                        .background(Color.white.opacity(0.1))
+                    
+                    Text("\(bloc.attempts)")
+                        .font(.fitness(.body, weight: .bold))
+                        .frame(width: 40, height: 32)
+                        .background(Color.white.opacity(0.1))
+                        .border(Color.black.opacity(0.5), width: 1) // Séparateur visuel
+                    
+                    Button("+") { if bloc.attempts < 20 { bloc.attempts += 1 } }
+                        .frame(width: 40, height: 32)
+                        .background(Color.white.opacity(0.1))
                 }
-                
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             
+            // 4. Les Toggles style "Boutons" (Plus rapide à cliquer)
+            HStack(spacing: 12) {
+                ToggleButton(
+                    title: "DÉVERS",
+                    icon: "arrow.up.right",
+                    isOn: $bloc.overhang,
+                    activeColor: .orange
+                )
+                
+                ToggleButton(
+                    title: "RÉUSSI",
+                    icon: "checkmark",
+                    isOn: $bloc.completed,
+                    activeColor: .climbingAccent
+                )
+            }
             
-            
+            // 5. Bouton Valider (Large)
+            if let onValidate {
+                Button(action: onValidate) {
+                    Text("Enregistrer")
+                        .font(.fitness(.headline, weight: .bold))
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.white)
+                        .cornerRadius(12)
+                }
+                .padding(.top, 8)
+            }
         }
         .padding(20)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-            )
-            .padding(.horizontal)
-            
-
+        .background(Color(red: 0.16, green: 0.16, blue: 0.18)) // Fond légèrement plus clair pour le mode edit
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10) // Grosse ombre pour donner l'impression que ça "pop"
     }
-        
+}
+
+// Petit helper pour les boutons toggle jolis
+struct ToggleButton: View {
+    let title: String
+    let icon: String
+    @Binding var isOn: Bool
+    let activeColor: Color
+    
+    var body: some View {
+        Button(action: { withAnimation(.spring()) { isOn.toggle() } }) {
+            HStack {
+                Image(systemName: icon)
+                Text(title)
+            }
+            .font(.fitness(.caption, weight: .bold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(isOn ? activeColor : Color.white.opacity(0.1))
+            .foregroundStyle(isOn ? .black : .white)
+            .cornerRadius(10)
+        }
+    }
 }
 
 #Preview {
-    
-    @Previewable @State var bloc:BlocModel = {
-        let session:SessionModel = SessionModel(date:Date())
-        return BlocModel(session:session)
-    }()
-    
-    VStack {
-        BlocEditableCard(bloc: bloc)
-        BlocEditableCard(bloc: bloc, onDelete: {}, onValidate: {})
+    ZStack {
+        Color.black.ignoresSafeArea()
+        BlocEditableCard(bloc: BlocModel(session: SessionModel(date: Date())), onDelete: {}, onValidate: {})
+            .padding()
     }
 }

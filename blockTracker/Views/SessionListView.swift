@@ -11,38 +11,58 @@ import SwiftData
 struct SessionListView: View {
     
     @Environment(AppState.self) private var appState
-    @Query private var sessions: [SessionModel]
+    @Query(sort: \SessionModel.date, order: .reverse) private var sessions: [SessionModel]
     
     var body: some View {
-        
         @Bindable var appState = appState
         
         NavigationStack {
-            if sessions.isEmpty {
-                EmptyStateView(message: "Aucune session enregistrée..", onButtonTap: {})
-            } else {
+            ZStack {
+                // FOND NOIR GLOBAL (Crucial pour le look Fitness)
+                Color.black.ignoresSafeArea()
                 
-                
-                ScrollView {
-                    VStack(spacing: 15) {
-                        ForEach(sessions) { session in
-                            NavigationLink(value: session) {
-                                SessionCard(session: session)
+                if sessions.isEmpty {
+                    EmptyStateView(message: "Aucune session enregistrée..", onButtonTap: {})
+                } else {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            
+                            // Titre manuel pour plus de contrôle (optionnel, sinon use navigationTitle)
+                            HStack {
+                                Text("Mes Sessions")
+                                    .font(.fitness(.largeTitle, weight: .bold))
+                                    .foregroundStyle(.white)
+                                Spacer()
                             }
-                            .buttonStyle(.plain)
+                            .padding(.top)
+                            .padding(.horizontal)
+
+                            ForEach(sessions) { session in
+                                NavigationLink(value: session) {
+                                    SessionCard(session: session)
+                                }
+                                .buttonStyle(ScaleButtonStyle())
+                            }
                         }
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
                     }
-                    .padding()
-                }
-                .navigationDestination(for: SessionModel.self) { session in
-                    SessionDetailView(session: session)
-                }
-                .navigationDestination(item: $appState.sessionToShow) { session in
-                    SessionDetailView(session: session)
                 }
             }
-            
+            .navigationBarHidden(true)
+            .navigationDestination(for: SessionModel.self) { session in
+                SessionDetailView(session: session)
+            }
         }
+    }
+}
+
+// Petit bonus : Animation au clic comme sur l'App Store ou Fitness
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
