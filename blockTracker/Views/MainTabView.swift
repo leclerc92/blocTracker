@@ -12,7 +12,7 @@ struct MainTabView: View {
     
     // Définition des onglets
     enum Tab {
-        case stats, sessions, badges, new
+        case stats, sessions, badges, new, settings
     }
     
     @State private var appState = AppState()
@@ -76,6 +76,13 @@ struct MainTabView: View {
                     Label("Trophées", systemImage: "trophy.fill")
                 }
                 .tag(Tab.badges)
+
+            // Onglet 5 : Réglages
+            SettingsView()
+                .tabItem {
+                    Label("Réglages", systemImage: "gearshape.fill")
+                }
+                .tag(Tab.settings)
         }
         // LA touche finale : Ta couleur Néon pour l'onglet actif
         .tint(Color.climbingAccent)
