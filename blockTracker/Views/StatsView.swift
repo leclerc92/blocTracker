@@ -98,7 +98,7 @@ struct StatsView: View {
                                     .font(.fitness(.subheadline, weight: .bold))
                                     .foregroundStyle(.green)
                                 Spacer()
-                                Text(String(format: "%.1f",data.globalSuccessRate))
+                                Text(String(format: "%.1f",data.globalSuccessRate) + "%")
                                     .font(.fitness(.headline, weight: .bold))
                                     .foregroundStyle(.white)
                             }
