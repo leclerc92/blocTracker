@@ -176,10 +176,6 @@ struct LevelEvolutionChart: View {
                         }
                     }
                     
-                    // Règle optionnelle (Exemple d'objectif)
-                    RuleMark(y: .value("Objectif", 10.0))
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                        .foregroundStyle(Color.gray.opacity(0.3))
                 }
                 // Échelle Y dynamique (Niveau 1 à 16 par exemple)
                 .chartYScale(domain: .automatic(includesZero: false))

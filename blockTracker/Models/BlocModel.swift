@@ -34,11 +34,11 @@ class BlocModel {
             // 1. BASE DE DIFFICULTÉ (Exponentielle)
             // Niveau 4 = 60 pts, Niveau 10 = 315 pts
             // Cela représente l'intensité physique intrinseque du bloc
-            let baseIntensity = pow(Double(self.level), 1.8) * 5.0
+        let baseIntensity = pow(Double(self.level), SCORE_CONSTANTS.INTENSITY_POW) * SCORE_CONSTANTS.INTENSITY_FACTOR
             
             // 2. FACTEUR DE STYLE
             // Le dévers demande plus d'énergie physique (gainage, bras)
-            let styleMultiplier = self.overhang ? 1.25 : 1.0
+        let styleMultiplier = self.overhang ? SCORE_CONSTANTS.STYLE_FACTOR : SCORE_CONSTANTS.STYLE_BASE
             
             let rawScore = baseIntensity * styleMultiplier
             
@@ -48,28 +48,24 @@ class BlocModel {
                 // Si validé au 1er essai (Flash) -> Petit bonus d'efficacité
                 // Si validé en 10 essais -> On a quand même réussi, donc score plein
                 
-                let successBonus = 1.2 // Bonus fixe de 20% parce que c'est fini
+                let successBonus = SCORE_CONSTANTS.SUCCES_BONUS // Bonus fixe de 20% parce que c'est fini
                 
                 // Petit bonus si fait en peu d'essais (Efficiency)
                 // 1 essai = x1.1, 10 essais = x1.0
-                let efficiencyBonus = max(1.0, 1.1 - (Double(attempts - 1) * 0.01))
+                let efficiencyBonus = max(SCORE_CONSTANTS.BASE_EFFICIENCY, SCORE_CONSTANTS.BASE_EFFICIENCY - (Double(attempts - 1) * SCORE_CONSTANTS.EFFICIENCY_FACTOR))
                 
                 return rawScore * successBonus * efficiencyBonus
                 
             } else {
                 // --- SCÉNARIO ÉCHEC (EFFORT / TRAINING LOAD) ---
                 // Ici, le score reflète l'énergie dépensée sans la récompense finale.
-                
-                // Base : Tu as travaillé le bloc, tu reçois 30% des points juste pour avoir essayé ce niveau.
-                let baseEffort = 0.30
-                
                 // Acharnement : Chaque essai ajoute 5% de points d'effort
                 // Exemple : 5 essais = 25% de plus.
                 // On plafonne l'effort total à 80% du score de base pour que
                 // l'échec ne rapporte jamais plus que la réussite.
-                let attemptLoad = min(0.50, Double(attempts) * 0.05)
+                let attemptLoad = min(SCORE_CONSTANTS.BASE_ATTEMPT, Double(attempts) * SCORE_CONSTANTS.ATTEMPT_FACTOR)
                 
-                let totalEffortFactor = baseEffort + attemptLoad
+                let totalEffortFactor = SCORE_CONSTANTS.BASE_EFFORT + attemptLoad
                 
                 return rawScore * totalEffortFactor
             }

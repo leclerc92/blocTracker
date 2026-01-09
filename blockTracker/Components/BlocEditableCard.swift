@@ -54,7 +54,7 @@ struct BlocEditableCard: View {
                         .foregroundStyle(Color.climbingAccent)
                 }
                 
-                Slider(value: levelBinding, in: 1...16, step: 1)
+                Slider(value: levelBinding, in: BLOC_CONSTANTS.LEVEL_RANGE, step: 1)
                     .tint(Color.climbingAccent)
             }
             
@@ -79,7 +79,7 @@ struct BlocEditableCard: View {
                         .background(Color.white.opacity(0.1))
                         .border(Color.black.opacity(0.5), width: 1) // Séparateur visuel
                     
-                    Button("+") { if bloc.attempts < 20 { bloc.attempts += 1 } }
+                    Button("+") { if bloc.attempts < BLOC_CONSTANTS.ATTEMPT_MAX { bloc.attempts += 1 } }
                         .frame(width: 40, height: 32)
                         .background(Color.white.opacity(0.1))
                 }
