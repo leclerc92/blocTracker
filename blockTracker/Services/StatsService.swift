@@ -55,6 +55,10 @@ struct StatsService {
             !session.blocs.isEmpty && session.blocs.allSatisfy { $0.completed }
         }
 
+        // Records de sessions
+        stats.maxBlocsInSession = sessions.map { $0.blocs.count }.max() ?? 0
+        stats.maxAverageLevelInSession = sessions.map { $0.averageBlocLevel }.max() ?? 0.0
+
         // Niveaux complétés (Simplement terminé)
         let completed = allBlocs.filter { $0.completed }
         stats.completedLevels = Set(completed.map { $0.level })

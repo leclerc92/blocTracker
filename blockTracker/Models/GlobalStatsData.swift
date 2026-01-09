@@ -21,8 +21,12 @@ struct GlobalStatsData {
     var totalFlashBlocs: Int = 0
     var hasPerfectSession: Bool = false
     var totalOverhangCompleted: Int = 0
-    
-    var completedLevels: Set<Int> = [] 
+
+    // Records de sessions
+    var maxBlocsInSession: Int = 0
+    var maxAverageLevelInSession: Double = 0.0
+
+    var completedLevels: Set<Int> = []
     var flashedLevels: Set<Int> = []
     var overhangLevels: Set<Int> = []
 
