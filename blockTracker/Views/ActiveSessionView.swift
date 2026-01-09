@@ -21,6 +21,11 @@ struct ActiveSessionView: View {
     @State private var newlyEarnedBadges: [Badge] = []
     @State private var showBadgeAlert = false
     
+    var averageSessionsScore:Double {
+        StatsService.computeStats(from: allSessions).globalAverageScore
+    }
+    
+    
     var body: some View {
         ZStack {
             // 1. Fond Noir immersif
@@ -39,31 +44,15 @@ struct ActiveSessionView: View {
                     // 2. Header "Live"
                     LiveSessionHeader(
                         date: activeSession?.date ?? Date(),
-                        onFinish: saveSession
+                        onFinish: saveSession,
+                        activeSessionScore: activeSession?.blocsScore ?? 0,
+                        averageSessionsScore: averageSessionsScore
                     )
+                    
                     
                     ScrollView {
                         VStack(spacing: 20) {
                             
-                            // 3. Gros bouton d'action "Ajouter"
-                            Button(action: addBloc) {
-                                HStack {
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.title)
-                                    Text("AJOUTER UN BLOC")
-                                        .font(.fitness(.headline, weight: .heavy))
-                                }
-                                .foregroundStyle(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color.climbingAccent)
-                                .cornerRadius(16)
-                                .shadow(color: .climbingAccent.opacity(0.3), radius: 10, y: 0)
-                            }
-                            .padding(.horizontal)
-                            .padding(.top, 20)
-                            
-                            // 4. Liste des blocs
                             if let session = activeSession {
                                 ForEach(session.blocs) { bloc in
                                     // On vérifie si l'ID (UUID) est dans le set des validés
@@ -85,9 +74,31 @@ struct ActiveSessionView: View {
                                     }
                                 }
                             }
+                            
                         }
                         .padding(.bottom, 100) // Marge pour le scroll
+                        
+                        
+                        
+                }
+                    Spacer()
+                    // 3. Gros bouton d'action "Ajouter"
+                    Button(action: addBloc) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title)
+                            Text("AJOUTER UN BLOC")
+                                .font(.fitness(.headline, weight: .heavy))
+                        }
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.climbingAccent)
+                        .cornerRadius(16)
+                        .shadow(color: .climbingAccent.opacity(0.3), radius: 10, y: 0)
                     }
+                    .padding(.horizontal)
+                    .padding(.top, 20)
                 }
             }
 
@@ -189,10 +200,13 @@ struct ActiveSessionView: View {
 struct LiveSessionHeader: View {
     var date: Date
     var onFinish: () -> Void
-    
+    var activeSessionScore:Double
+    var averageSessionsScore:Double
+        
     @State private var isPulsing = false
     
     var body: some View {
+        
         HStack {
             // Indicateur "En cours"
             HStack(spacing: 8) {
@@ -210,6 +224,23 @@ struct LiveSessionHeader: View {
                     Text(date.formatted(Date.French.timeOnly))
                         .font(.fitness(.title3, weight: .bold))
                         .foregroundStyle(.white)
+                    
+                    
+                    HStack{
+                        Text("Score : " + String(format:"%.1f pts",activeSessionScore))
+                            .foregroundStyle(.white)
+                        
+                        if activeSessionScore < averageSessionsScore {
+                            Text("↘")
+                                .foregroundStyle(.white)
+                        } else {
+                            Text("↗")
+                                .foregroundStyle(.white)
+                        }
+                        
+                    }
+                    
+                    
                 }
             }
             
@@ -232,8 +263,10 @@ struct LiveSessionHeader: View {
                 isPulsing = true
             }
         }
+        
     }
 }
+
 
 #Preview {
     ActiveSessionView()

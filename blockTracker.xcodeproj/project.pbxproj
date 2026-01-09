@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CCCEF93F2F1114A1006DA743 /* PLAN_AMELIORATIONS 2.md in Resources */ = {isa = PBXBuildFile; fileRef = CCCEF93E2F1114A1006DA743 /* PLAN_AMELIORATIONS 2.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CCA5E7C22F0EC5530011D9B3 /* blockTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blockTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCCEF93E2F1114A1006DA743 /* PLAN_AMELIORATIONS 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "PLAN_AMELIORATIONS 2.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -34,6 +39,7 @@
 			children = (
 				CCA5E7C42F0EC5530011D9B3 /* blockTracker */,
 				CCA5E7C32F0EC5530011D9B3 /* Products */,
+				CCCEF93E2F1114A1006DA743 /* PLAN_AMELIORATIONS 2.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCCEF93F2F1114A1006DA743 /* PLAN_AMELIORATIONS 2.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
