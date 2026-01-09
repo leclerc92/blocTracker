@@ -21,9 +21,8 @@ struct ActiveSessionView: View {
     @State private var newlyEarnedBadges: [Badge] = []
     @State private var showBadgeAlert = false
     
-    var averageSessionsScore:Double {
-        StatsService.computeStats(from: allSessions).globalAverageScore
-    }
+    @State private var averageSessionsScore:Double = 0.0
+ 
     
     
     var body: some View {
@@ -115,6 +114,12 @@ struct ActiveSessionView: View {
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: activeSession?.blocs.count)
         .animation(.easeInOut, value: validatedBlocIds)
+        .onAppear {
+            if !allSessions.isEmpty {
+                averageSessionsScore = StatsService.computeStats(from: allSessions).globalAverageScore
+            }
+            
+        }
     }
     
     // MARK: - Actions
