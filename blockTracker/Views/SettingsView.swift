@@ -167,13 +167,13 @@ struct SettingsView: View {
     }
 
     private func handleImport(fileURL: URL) {
-        // Accéder au fichier avec security-scoped resource
-        guard fileURL.startAccessingSecurityScopedResource() else {
-            self.alertMessage = "Impossible d'accéder au fichier sélectionné."
-            self.showAlert = true
-            return
+        // Tenter l'accès au fichier (avec asCopy: true, le fichier est déjà accessible)
+        let needsAccess = fileURL.startAccessingSecurityScopedResource()
+        defer {
+            if needsAccess {
+                fileURL.stopAccessingSecurityScopedResource()
+            }
         }
-        defer { fileURL.stopAccessingSecurityScopedResource() }
 
         do {
             // Lire le fichier

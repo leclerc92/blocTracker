@@ -22,6 +22,7 @@ struct SessionDetailView: View {
     
     @State var editionBloc: BlocModel?
     @State private var showDeleteAlert = false
+    @State private var isEditingDate = false
 
     @State private var newlyEarnedBadges: [Badge] = []
     @State private var showBadgeAlert = false
@@ -33,7 +34,59 @@ struct SessionDetailView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    
+
+                    // Section de date éditable
+                    VStack(spacing: 12) {
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                isEditingDate.toggle()
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: "calendar")
+                                    .font(.fitness(.body, weight: .semibold))
+                                    .foregroundStyle(Color.climbingAccent)
+
+                                Text(session.date.formatted(Date.French.longDate))
+                                    .font(.fitness(.headline))
+                                    .foregroundStyle(.white)
+
+                                Spacer()
+
+                                Image(systemName: isEditingDate ? "chevron.up" : "chevron.down")
+                                    .font(.fitness(.caption, weight: .bold))
+                                    .foregroundStyle(.gray)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
+                            .background(Color.cardBackground)
+                            .cornerRadius(12)
+                        }
+                        .buttonStyle(.plain)
+
+                        if isEditingDate {
+                            DatePicker(
+                                "Date de la session",
+                                selection: Binding(
+                                    get: { session.date },
+                                    set: { newDate in
+                                        session.date = newDate
+                                        try? modelContext.save()
+                                    }
+                                ),
+                                displayedComponents: [.date]
+                            )
+                            .datePickerStyle(.graphical)
+                            .colorScheme(.dark)
+                            .tint(Color.climbingAccent)
+                            .padding()
+                            .background(Color.cardBackground)
+                            .cornerRadius(12)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                    }
+                    .padding(.horizontal)
+
                     SessionStatsHeader(session: session)
                     
                     VStack(spacing: 16) {
