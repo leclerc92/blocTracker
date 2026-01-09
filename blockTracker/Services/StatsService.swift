@@ -20,7 +20,7 @@ struct StatsService {
         stats.totalSessions = sessions.count
         
         // Moyenne des scores de toutes les sessions
-        let allScores = sessions.map { $0.blocsScore }
+        let allScores = sessions.map { $0.sessionScore }
         stats.globalAverageScore = allScores.reduce(0, +) / Double(sessions.count)
         
         // Moyenne des niveaux de toutes les sessions
@@ -76,7 +76,7 @@ struct StatsService {
         let sortedSessions = sessions.sorted { $0.date < $1.date }
         
         stats.scoreHistory = sortedSessions.map { session in
-            ChartDataPoint(date: session.date, value: session.blocsScore)
+            ChartDataPoint(date: session.date, value: session.sessionScore)
         }
         
         stats.levelHistory = sortedSessions.map { session in

@@ -56,6 +56,7 @@ struct BlocEditableCard: View {
                 
                 Slider(value: levelBinding, in: BLOC_CONSTANTS.LEVEL_RANGE, step: 1)
                     .tint(Color.climbingAccent)
+
             }
             
             Divider().background(Color.white.opacity(0.1))

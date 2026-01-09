@@ -44,7 +44,7 @@ struct ActiveSessionView: View {
                     LiveSessionHeader(
                         date: activeSession?.date ?? Date(),
                         onFinish: saveSession,
-                        activeSessionScore: activeSession?.blocsScore ?? 0,
+                        activeSessionScore: activeSession?.sessionScore ?? 0,
                         averageSessionsScore: averageSessionsScore
                     )
                     
@@ -120,6 +120,7 @@ struct ActiveSessionView: View {
             }
             
         }
+
     }
     
     // MARK: - Actions

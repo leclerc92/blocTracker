@@ -14,7 +14,7 @@ struct SessionCard: View {
         VStack(alignment: .leading, spacing: 20) {
             
             // 1. En-tête : Date et Score principal
-            HeaderView(date: session.date, score: session.blocsScore)
+            HeaderView(date: session.date, score: session.sessionScore)
             
             // 2. Ligne de stats (Grille horizontale)
             HStack(spacing: 0) {

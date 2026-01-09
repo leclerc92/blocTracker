@@ -13,7 +13,7 @@ class SessionModel {
     
     var date: Date
     
-    var blocsScore: Double {
+    var sessionScore: Double {
         blocs.map(\.score).reduce(0, +)
     }
     

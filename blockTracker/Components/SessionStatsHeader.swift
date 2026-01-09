@@ -56,7 +56,7 @@ struct SessionStatsHeader: View {
                         .font(.fitness(.caption, weight: .bold))
                         .foregroundStyle(.gray)
                     
-                    Text(String(format: "%.1f", session.blocsScore))
+                    Text(String(format: "%.1f", session.sessionScore))
                         .font(.fitness(size: 48, weight: .black)) // Très gros impact
                         .foregroundStyle(.white)
                     
