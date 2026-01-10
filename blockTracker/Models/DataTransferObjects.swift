@@ -27,7 +27,8 @@ struct DataPayload: Codable {
 /// Data Transfer Object pour SessionModel
 struct SessionDTO: Codable {
     let id: String
-    let date: Date
+    let startDate: Date
+    let endDate: Date?  
     let blocs: [BlocDTO]
 }
 
@@ -40,6 +41,8 @@ struct BlocDTO: Codable {
     let completed: Bool
     let attempts: Int
     let overhang: Bool
+    let validate: Bool
+    let date: Date
 }
 
 // MARK: - Badge DTO

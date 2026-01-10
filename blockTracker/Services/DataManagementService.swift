@@ -36,14 +36,17 @@ class DataManagementService {
             let sessionDTOs = sessions.map { session in
                 SessionDTO(
                     id: session.persistentModelID.hashValue.description,
-                    date: session.startDate,
+                    startDate: session.startDate,
+                    endDate: session.endDate, 
                     blocs: session.blocs.map { bloc in
                         BlocDTO(
                             id: bloc.persistentModelID.hashValue.description,
                             level: bloc.level,
                             completed: bloc.completed,
                             attempts: bloc.attempts,
-                            overhang: bloc.overhang
+                            overhang: bloc.overhang,
+                            validate: bloc.validated,
+                            date: bloc.date
                         )
                     }
                 )
@@ -103,7 +106,8 @@ class DataManagementService {
             // IMPORT des sessions avec leurs blocs
             for sessionDTO in exportData.data.sessions {
                 // Créer la session
-                let session = SessionModel(date: sessionDTO.date, blocs: [])
+                let session = SessionModel(date: sessionDTO.startDate)
+                session.endDate = sessionDTO.endDate
                 modelContext.insert(session)
 
                 // Créer les blocs avec référence parent
@@ -113,7 +117,9 @@ class DataManagementService {
                         completed: blocDTO.completed,
                         attempts: blocDTO.attempts,
                         overhang: blocDTO.overhang,
-                        session: session
+                        session: session,
+                        validated: blocDTO.validate,
+                        date: blocDTO.date
                     )
                     session.blocs.append(bloc)
                 }
