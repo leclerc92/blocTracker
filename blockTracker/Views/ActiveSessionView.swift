@@ -16,7 +16,6 @@ struct ActiveSessionView: View {
     @Query(sort: \SessionModel.startDate) private var allSessions: [SessionModel]
 
     @State private var activeSession: SessionModel?
-    @State private var validatedBlocIds: Set<PersistentIdentifier> = []
 
     @State private var newlyEarnedBadges: [Badge] = []
     @State private var showBadgeAlert = false
@@ -53,13 +52,12 @@ struct ActiveSessionView: View {
                         VStack(spacing: 20) {
                             
                             if let session = activeSession {
-                                ForEach(session.blocs) { bloc in
-                                    // On vérifie si l'ID (UUID) est dans le set des validés
-                                    if validatedBlocIds.contains(bloc.id) {
+                                ForEach(session.blocs.sorted(by: { $0.date > $1.date }), id: \.id) { bloc in
+                                    if bloc.validated {
                                         // Mode Lecture
                                         BlocCard(
                                             bloc: bloc,
-                                            editButton: { setEditableBlock(blocId: bloc.id) }
+                                            editButton: { setEditableBlock(bloc: bloc) }
                                         )
                                         .transition(.opacity.combined(with: .scale))
                                     } else {
@@ -97,7 +95,7 @@ struct ActiveSessionView: View {
                         .shadow(color: .climbingAccent.opacity(0.3), radius: 10, y: 0)
                     }
                     .padding(.horizontal)
-                    .padding(.top, 20)
+                    .padding(20)
                 }
             }
 
@@ -109,11 +107,11 @@ struct ActiveSessionView: View {
                         closeAndNavigate(session: session)
                     }
                 })
-                .zIndex(100) // S'assure qu'il est tout au dessus
+                .zIndex(100)
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: activeSession?.blocs.count)
-        .animation(.easeInOut, value: validatedBlocIds)
+        .animation(.easeInOut, value: activeSession?.blocs)
         .onAppear {
             checkActiveSession()
             getSessionsStats()
@@ -126,7 +124,10 @@ struct ActiveSessionView: View {
         withAnimation {
             activeSession = SessionModel(date: Date())
             addBloc()
-            guard let session =  activeSession else { return }
+            guard let session =  activeSession else {
+                print("StartNewSession - error activeSessionCreation")
+                return
+            }
             modelContext.insert(session)
         }
     }
@@ -136,9 +137,9 @@ struct ActiveSessionView: View {
         
         withAnimation(.snappy) {
             let newBloc = BlocModel(session: session)
-            // On insère au début de la liste pour l'avoir sous les yeux tout de suite
             session.blocs.insert(newBloc, at: 0)
         }
+        try? modelContext.save()
     }
     
     func saveSession() {
@@ -164,7 +165,6 @@ struct ActiveSessionView: View {
                 self.showBadgeAlert = true
             }
         } else {
-            // CAS B : Rien de neuf -> On sort direct
             closeAndNavigate(session: session)
         }
     }
@@ -176,7 +176,6 @@ struct ActiveSessionView: View {
             appState.selectedTab = .sessions
             
             activeSession = nil
-            validatedBlocIds.removeAll()
             
             // Reset des états d'alerte
             showBadgeAlert = false
@@ -184,12 +183,12 @@ struct ActiveSessionView: View {
         }
     }
     
-    func setEditableBlock(blocId: PersistentIdentifier) {
-        validatedBlocIds.remove(blocId)
+    func setEditableBlock(bloc: BlocModel) {
+        bloc.validated = false
     }
     
     func validateBloc(bloc: BlocModel) {
-        validatedBlocIds.insert(bloc.id)
+        bloc.validated = true
     }
     
     func deleteBloc(bloc: BlocModel) {

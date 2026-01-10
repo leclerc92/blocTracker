@@ -16,17 +16,21 @@ class BlocModel {
     var attempts: Int
     var overhang: Bool
     var session: SessionModel
+    var validated: Bool
+    var date: Date
     
     var score:Double {
         calculateBlocScore()
     }
     
-    init(level: Int = 3, completed: Bool = false, attempts: Int = 1, overhang: Bool = false, session: SessionModel) {
+    init(level: Int = 3, completed: Bool = false, attempts: Int = 1, overhang: Bool = false, session: SessionModel, validated: Bool = false, date:Date = Date()) {
         self.level = level
         self.completed = completed
         self.attempts = max(1, attempts)
         self.overhang = overhang
         self.session = session
+        self.validated = validated
+        self.date = date
     }
     
     func calculateBlocScore() -> Double {
