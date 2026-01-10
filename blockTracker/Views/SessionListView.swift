@@ -11,7 +11,7 @@ import SwiftData
 struct SessionListView: View {
     
     @Environment(AppState.self) private var appState
-    @Query(sort: \SessionModel.date, order: .reverse) private var sessions: [SessionModel]
+    @Query(sort: \SessionModel.startDate, order: .reverse) private var sessions: [SessionModel]
     
     var body: some View {
         @Bindable var appState = appState

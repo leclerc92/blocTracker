@@ -90,6 +90,13 @@ struct SessionStatsHeader: View {
                     icon: "angle", // Ou une icône plus parlante
                     color: .orange // Orange Néon
                 )
+                
+                StatBox(
+                    label: "DURÉE",
+                    value: session.duration.formattedHHMM,
+                    icon: "timer", // Ou une icône plus parlante
+                    color: .green // Orange Néon
+                )
             }
         }
         .padding(24)

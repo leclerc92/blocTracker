@@ -14,7 +14,7 @@ struct SessionCard: View {
         VStack(alignment: .leading, spacing: 20) {
             
             // 1. En-tête : Date et Score principal
-            HeaderView(date: session.date, score: session.sessionScore)
+            HeaderView(date: session.startDate, score: session.sessionScore)
             
             // 2. Ligne de stats (Grille horizontale)
             HStack(spacing: 0) {
@@ -23,6 +23,7 @@ struct SessionCard: View {
                 StatItem(label: "MIN - MAX", value: "\(session.minBlocLevel) - \(session.maxBlocLevel)")
                 Divider().frame(height: 30).background(Color.white.opacity(0.1))
                 StatItem(label: "RÉUSSIS", value: "\(session.completedBlocCount)/\(session.blocs.count)")
+                StatItem(label: "Durée", value: session.duration.formattedHHMM)
             }
         }
         .padding(20)
@@ -31,9 +32,11 @@ struct SessionCard: View {
     }
 }
 
-// --- SOUS-COMPOSANTS (Pour garder le code propre) ---
 
-// Le Header avec le Score mis en avant
+
+
+//MARK: HEADER
+
 private struct HeaderView: View {
     var date: Date
     var score: Double
@@ -52,7 +55,6 @@ private struct HeaderView: View {
             
             Spacer()
             
-            // Score style "Ring" ou "Badge"
             HStack(spacing: 4) {
                 Text(String(format: "%.1f", score))
                     // CORRECTION ICI : On appelle directement size: 32
@@ -67,7 +69,6 @@ private struct HeaderView: View {
     }
 }
 
-// Un item de statistique unique
 private struct StatItem: View {
     var label: String
     var value: String
@@ -75,11 +76,11 @@ private struct StatItem: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.fitness(.title3, weight: .semibold)) // Valeur bien visible
+                .font(.fitness(.title3, weight: .semibold))
                 .foregroundStyle(.white)
             
             Text(label)
-                .font(.fitness(.caption2, weight: .medium)) // Label discret
+                .font(.fitness(.caption2, weight: .medium))
                 .foregroundStyle(Color.textSecondary)
         }
         .frame(maxWidth: .infinity) // Pour distribuer l'espace équitablement

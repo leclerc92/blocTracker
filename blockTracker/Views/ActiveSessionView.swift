@@ -13,7 +13,7 @@ struct ActiveSessionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppState.self) private var appState
 
-    @Query(sort: \SessionModel.date) private var allSessions: [SessionModel]
+    @Query(sort: \SessionModel.startDate) private var allSessions: [SessionModel]
 
     @State private var activeSession: SessionModel?
     @State private var validatedBlocIds: Set<PersistentIdentifier> = []
@@ -42,7 +42,7 @@ struct ActiveSessionView: View {
                     
                     // 2. Header "Live"
                     LiveSessionHeader(
-                        date: activeSession?.date ?? Date(),
+                        date: activeSession?.startDate ?? Date(),
                         onFinish: saveSession,
                         activeSessionScore: activeSession?.sessionScore ?? 0,
                         averageSessionsScore: averageSessionsScore
@@ -115,20 +115,19 @@ struct ActiveSessionView: View {
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: activeSession?.blocs.count)
         .animation(.easeInOut, value: validatedBlocIds)
         .onAppear {
-            if !allSessions.isEmpty {
-                averageSessionsScore = StatsService.computeStats(from: allSessions).globalAverageScore
-            }
-            
+            checkActiveSession()
+            getSessionsStats()
         }
 
     }
     
     // MARK: - Actions
-    
     func startNewSession() {
         withAnimation {
             activeSession = SessionModel(date: Date())
             addBloc()
+            guard let session =  activeSession else { return }
+            modelContext.insert(session)
         }
     }
     
@@ -145,8 +144,8 @@ struct ActiveSessionView: View {
     func saveSession() {
         guard let session = activeSession else { return }
         
-        // 1. Sauvegarde SwiftData
-        modelContext.insert(session)
+        session.endDate = Date()
+        
         
         do {
             try modelContext.save()
@@ -158,7 +157,6 @@ struct ActiveSessionView: View {
         let stats = StatsService.computeStats(from: allSessions)
         let newBadges = BadgeService(modelContext: modelContext).checkAndUnlockBadges(stats: stats)
         
-        // 4. Décision : Alerte ou Sortie directe ?
         if !newBadges.isEmpty {
             // CAS A : On a gagné un truc -> On montre l'alerte
             self.newlyEarnedBadges = newBadges
@@ -171,7 +169,7 @@ struct ActiveSessionView: View {
         }
     }
 
-    // Une petite fonction helper pour ne pas dupliquer le code de navigation
+
     func closeAndNavigate(session: SessionModel) {
         withAnimation {
             appState.sessionToShow = session
@@ -200,6 +198,17 @@ struct ActiveSessionView: View {
             session.blocs.removeAll { $0.id == bloc.id }
         }
     }
+    
+    func checkActiveSession() {
+        activeSession = allSessions.first { $0.endDate == nil }
+    }
+    
+    func getSessionsStats() {
+        if !allSessions.isEmpty {
+            averageSessionsScore = StatsService.computeStats(from: allSessions).globalAverageScore
+        }
+    }
+
 }
 
 // MARK: - Sous-Composant Header "Live"

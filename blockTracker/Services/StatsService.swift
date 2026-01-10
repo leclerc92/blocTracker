@@ -73,14 +73,14 @@ struct StatsService {
         
         // --- CALCULS TEMPORELS (Pour les graphiques) ---
         // On trie les sessions par date pour que le graph soit dans l'ordre
-        let sortedSessions = sessions.sorted { $0.date < $1.date }
+        let sortedSessions = sessions.sorted { $0.startDate < $1.startDate }
         
         stats.scoreHistory = sortedSessions.map { session in
-            ChartDataPoint(date: session.date, value: session.sessionScore)
+            ChartDataPoint(date: session.startDate, value: session.sessionScore)
         }
         
         stats.levelHistory = sortedSessions.map { session in
-            ChartDataPoint(date: session.date, value: session.averageBlocLevel)
+            ChartDataPoint(date: session.startDate, value: session.averageBlocLevel)
         }
         
         return stats

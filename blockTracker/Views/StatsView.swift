@@ -3,7 +3,7 @@ import SwiftData
 
 struct StatsView: View {
     
-    @Query(sort: \SessionModel.date, order: .forward) private var sessions: [SessionModel]
+    @Query(sort: \SessionModel.startDate, order: .forward) private var sessions: [SessionModel]
 
     // Cache des stats pour éviter de recalculer à chaque render
     @State private var cachedStats: GlobalStatsData = GlobalStatsData()

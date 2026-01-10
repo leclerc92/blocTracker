@@ -16,7 +16,7 @@ struct SessionDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    @Query(sort: \SessionModel.date) private var allSessions: [SessionModel]
+    @Query(sort: \SessionModel.startDate) private var allSessions: [SessionModel]
 
     let session: SessionModel
     
@@ -47,7 +47,7 @@ struct SessionDetailView: View {
                                     .font(.fitness(.body, weight: .semibold))
                                     .foregroundStyle(Color.climbingAccent)
 
-                                Text(session.date.formatted(Date.French.longDate))
+                                Text(session.startDate.formatted(Date.French.longDate))
                                     .font(.fitness(.headline))
                                     .foregroundStyle(.white)
 
@@ -68,9 +68,9 @@ struct SessionDetailView: View {
                             DatePicker(
                                 "Date de la session",
                                 selection: Binding(
-                                    get: { session.date },
+                                    get: { session.startDate },
                                     set: { newDate in
-                                        session.date = newDate
+                                        session.startDate = newDate
                                         try? modelContext.save()
                                     }
                                 ),
@@ -126,7 +126,7 @@ struct SessionDetailView: View {
             }
         }
         // Configuration de la barre de navigation
-        .navigationTitle(session.date.formatted(Date.French.shortDate))
+        .navigationTitle(session.startDate.formatted(Date.French.shortDate))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar) // Force le texte blanc en haut
         .toolbarBackground(Color.black, for: .navigationBar)

@@ -24,7 +24,7 @@ class DataManagementService {
         do {
             // Fetch toutes les sessions (triées par date)
             let sessionDescriptor = FetchDescriptor<SessionModel>(
-                sortBy: [SortDescriptor(\.date)]
+                sortBy: [SortDescriptor(\.startDate)]
             )
             let sessions = try modelContext.fetch(sessionDescriptor)
 
@@ -36,7 +36,7 @@ class DataManagementService {
             let sessionDTOs = sessions.map { session in
                 SessionDTO(
                     id: session.persistentModelID.hashValue.description,
-                    date: session.date,
+                    date: session.startDate,
                     blocs: session.blocs.map { bloc in
                         BlocDTO(
                             id: bloc.persistentModelID.hashValue.description,

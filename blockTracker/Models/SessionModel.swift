@@ -11,7 +11,8 @@ import SwiftData
 @Model
 class SessionModel {
     
-    var date: Date
+    var startDate: Date
+    var endDate: Date?
     
     var sessionScore: Double {
         blocs.map(\.score).reduce(0, +)
@@ -38,13 +39,18 @@ class SessionModel {
         blocs.filter(\.overhang).count
     }
     
+    var duration: TimeInterval {
+        guard let end = endDate else { return 0 }
+        return end.timeIntervalSince(startDate)
+    }
+    
     
     @Relationship(deleteRule: .cascade, inverse: \BlocModel.session)
     var blocs: [BlocModel]
     
     
     init(date: Date, blocs: [BlocModel] = []) {
-        self.date = date
+        self.startDate = date
         self.blocs = blocs
     }
 }

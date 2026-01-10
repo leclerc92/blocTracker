@@ -224,47 +224,6 @@ HexagonShape()
 
 ---
 
-### 2.2 Calculs de Statistiques Non Cachés
-
-**Problème**: Propriétés calculées de `SessionModel` recalculées à chaque accès.
-
-**Impact**: CPU gaspillé, animations saccadées.
-
-**Solution**:
-```swift
-// SessionModel.swift - Ajouter cache
-@Model
-final class SessionModel {
-    // ... existing properties ...
-
-    @Transient
-    private var cachedScore: Int?
-
-    var score: Int {
-        if let cached = cachedScore {
-            return cached
-        }
-        let computed = blocs.reduce(0) { $0 + $1.score }
-        cachedScore = computed
-        return computed
-    }
-
-    func invalidateCache() {
-        cachedScore = nil
-        // ... other cached values
-    }
-}
-```
-
-**Tâches**:
-1. Ajouter propriétés @Transient pour cache
-2. Invalider cache lors de modifications
-3. Profiler avec Instruments
-4. Mesurer amélioration de performance
-
-**Effort estimé**: 1 jour
-
----
 
 ### 2.3 Badge Checking Inefficace
 

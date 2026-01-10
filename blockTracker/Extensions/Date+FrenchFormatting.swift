@@ -42,3 +42,14 @@ extension Date {
             .locale(Locale(identifier: "fr_FR"))
     }
 }
+
+// MARK: - Formatage de Durées (Temps écoulé)
+extension TimeInterval {
+    /// Convertit le temps (secondes) en format "HH:MM" (ex: "01:30")
+    var formattedHHMM: String {
+        let totalSeconds = Int(self)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        return String(format: "%02d:%02d", hours, minutes)
+    }
+}
